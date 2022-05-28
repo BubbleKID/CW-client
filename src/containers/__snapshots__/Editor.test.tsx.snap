@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Editor should be rendered 1`] = `
+Array [
+  <span>
+    edit
+  </span>,
+  <a
+    href="/"
+    onClick={[Function]}
+  >
+    Home
+  </a>,
+]
+`;

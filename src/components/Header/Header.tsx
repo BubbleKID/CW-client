@@ -1,14 +1,14 @@
 import React from 'react';
-import './Header.css';
-import  Logo from '../../images/CWH_logo_2.png';
+import './Header.sass';
+import  Logo1 from '../../images/CWH_logo_1.png';
+import  Logo2 from '../../images/CWH_logo_2.png';
 
 export default function Header() {
     return (
-        <div className="menu-container">
-            <div className="menu">
-                <div className="menu-items">
-                    <a className="menu-logo"><img src={Logo} /></a>
-                </div>
+        <div className="header">
+            <div className="header__container">
+                <a className="header__logo"><img src={Logo1} alt="logo1" /></a>
+                <a className="header__logo"><img src={Logo2} alt="logo2" /></a>
             </div>
         </div>
     )

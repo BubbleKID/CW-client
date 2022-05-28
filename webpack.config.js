@@ -29,8 +29,19 @@ module.exports = {
         use: ["ts-loader"],
       },
       {
-        test: /\.(css|scss)$/,
+        test: /\.(css)$/,
         use: ["style-loader", "css-loader", "css-modules-typescript-loader"],
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          // Creates `style` nodes from JS strings
+          "style-loader",
+          // Translates CSS into CommonJS
+          "css-loader",
+          // Compiles Sass to CSS
+          "sass-loader",
+        ],
       },
       {
         test: /\.(jpg|jpeg|png|gif|mp3)$/,

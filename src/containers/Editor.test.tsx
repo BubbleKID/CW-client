@@ -1,10 +1,10 @@
 import React from 'react';
 import TestRenderer  from 'react-test-renderer';
-import Home from './Home';
+import Editor from './Editor';
 import { MemoryRouter }from 'react-router-dom';
 
-test('Home should be rendered', () => {
-    const component = TestRenderer.create(<MemoryRouter><Home/></MemoryRouter>,);
+test('Editor should be rendered', () => {
+    const component = TestRenderer.create(<MemoryRouter><Editor/></MemoryRouter>,);
     let tree = component.toJSON();
     expect(tree).toMatchSnapshot();
 });

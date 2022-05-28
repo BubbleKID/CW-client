@@ -18,8 +18,13 @@ import Tooltip from '@mui/material/Tooltip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import Button from '@mui/material/Button';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import CreateIcon from '@mui/icons-material/Create';
 import { visuallyHidden } from '@mui/utils';
+import { Link } from "react-router-dom";
+
+import './Table.sass';
 
 interface Data {
   name: string;
@@ -44,18 +49,18 @@ function createData(
 
 const rows = [
   createData('Cupcake', 305, "Books", 'active'),
-  createData('Donut', 452, "Books", 'active'),
-  createData('Eclair', 262, "Books", 'active'),
-  createData('Frozen yoghurt', 159, "Books", 'active'),
-  createData('Gingerbread', 356, "Books", 'active'),
+  createData('Donut', 452, "Electronics", 'active'),
+  createData('Eclair', 262, "Electronics", 'active'),
+  createData('Frozen yoghurt', 159, "Furniture", 'active'),
+  createData('Gingerbread', 356, "Furniture", 'inactive'),
   createData('Honeycomb', 408, "Books", 'active'),
-  createData('Ice cream sandwich', 237, "Books", 'active'),
-  createData('Jelly Bean', 375, "Books", 'active'),
-  createData('KitKat', 518, "Books", 'active'),
+  createData('Ice cream sandwich', 237, "Books", 'inactive'),
+  createData('Jelly Bean', 375, "Toys", 'inactive'),
+  createData('KitKat', 518, "Toys", 'inactive'),
   createData('Lollipop', 392, "Books", 'active'),
-  createData('Marshmallow', 318, "Books", 'active'),
-  createData('Nougat', 360, "Books", 'active'),
-  createData('Oreo', 437, "Books", 'active'),
+  createData('Marshmallow', 318, "Food", 'active'),
+  createData('Nougat', 360, "Food", 'inactive'),
+  createData('Oreo', 437, "Food", 'active'),
 ];
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -151,20 +156,11 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     <TableHead>
       <TableRow>
         <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all desserts',
-            }}
-          />
         </TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? 'right' : 'left'}
+            align='left'
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
@@ -182,6 +178,9 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             </TableSortLabel>
           </TableCell>
         ))}
+          <TableCell>
+            Actions
+          </TableCell>
       </TableRow>
     </TableHead>
   );
@@ -205,38 +204,19 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
         }),
       }}
     >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          Products
-        </Typography>
-      )}
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
+      <Typography
+        sx={{ flex: '1 1 100%' }}
+        variant="h6"
+        id="tableTitle"
+        component="div"
+      >
+        Products
+      </Typography>       
+      <Tooltip title="Add a new product">
+        <Button variant="contained" endIcon={<AddCircleIcon/>} sx={{minWidth: '200px'}}>
+          New product
+        </Button>
+      </Tooltip>
     </Toolbar>
   );
 };
@@ -307,7 +287,7 @@ export default function EnhancedTable() {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%' }} className="table">
       <Paper sx={{ width: '100%', mb: 2 }}>
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
@@ -330,8 +310,8 @@ export default function EnhancedTable() {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  // const isItemSelected = isSelected(row.name);
-                  const isItemSelected = true;
+                  const isItemSelected = isSelected(row.name);
+                  // const isItemSelected = true;
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
@@ -345,15 +325,10 @@ export default function EnhancedTable() {
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            'aria-labelledby': labelId,
-                          }}
-                        />
+                        
                       </TableCell>
                       <TableCell
+                        align="left"
                         component="th"
                         id={labelId}
                         scope="row"
@@ -361,10 +336,19 @@ export default function EnhancedTable() {
                       >
                         {row.name}
                       </TableCell>
-                      <TableCell align="right">{row.name}</TableCell>
-                      <TableCell align="right">{row.price}</TableCell>
-                      <TableCell align="right">{row.type}</TableCell>
-                      <TableCell align="right">{row.active}</TableCell>
+                      <TableCell align="left">{row.price}</TableCell>
+                      <TableCell align="left">{row.type}</TableCell>
+                      <TableCell align="left">{row.active}</TableCell>
+                      <TableCell align="left">
+                        <IconButton color="error" aria-label="delete">
+                          <DeleteIcon  />
+                        </IconButton>
+                        <Link to="/edit">
+                          <IconButton color="primary" aria-label="edit">
+                            <CreateIcon  />
+                          </IconButton>
+                        </Link>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
