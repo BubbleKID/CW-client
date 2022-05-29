@@ -14,7 +14,8 @@ class MyComponent extends React.Component {
       <BrowserRouter>
         <Routes>
           <Route index element={<Home />} />
-          <Route path="edit" element={<Editor />}></Route>
+          <Route path="edit" element={<Editor isEdit/>}></Route>
+          <Route path="new-product" element={<Editor isEdit={false}/>}></Route>
         </Routes>
       </BrowserRouter>
     );

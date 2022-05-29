@@ -12,9 +12,11 @@ module.exports = {
     static: {
       directory: path.join(__dirname, 'build'),
     },
+    historyApiFallback: true,
     compress: true,
     port: 9000,
-    open: true
+    open: true,
+    liveReload: true,
   },
   module: {
     rules: [

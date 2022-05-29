@@ -22,7 +22,7 @@ import Button from '@mui/material/Button';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import CreateIcon from '@mui/icons-material/Create';
 import { visuallyHidden } from '@mui/utils';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import './Table.sass';
 
@@ -136,7 +136,6 @@ const headCells: readonly HeadCell[] = [
 ];
 
 interface EnhancedTableProps {
-  numSelected: number;
   onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
   onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
   order: Order;
@@ -145,7 +144,7 @@ interface EnhancedTableProps {
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
+  const { onSelectAllClick, order, orderBy, rowCount, onRequestSort } =
     props;
   const createSortHandler =
     (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
@@ -186,22 +185,18 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   );
 }
 
-interface EnhancedTableToolbarProps {
-  numSelected: number;
-}
+const EnhancedTableToolbar = () => {
+  const navigate = useNavigate();
 
-const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
-  const { numSelected } = props;
+  const handleAddNewProduct = () => {
+    navigate('/new-product');
+  }
 
   return (
     <Toolbar
       sx={{
         pl: { sm: 2 },
-        pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
-          bgcolor: (theme) =>
-            alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
-        }),
+        pr: { xs: 1, sm: 1 }
       }}
     >
       <Typography
@@ -213,7 +208,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
         Products
       </Typography>       
       <Tooltip title="Add a new product">
-        <Button variant="contained" endIcon={<AddCircleIcon/>} sx={{minWidth: '200px'}}>
+        <Button variant="contained" endIcon={<AddCircleIcon/>} sx={{minWidth: '200px'}} onClick={handleAddNewProduct}>
           New product
         </Button>
       </Tooltip>
@@ -289,7 +284,7 @@ export default function EnhancedTable() {
   return (
     <Box sx={{ width: '100%' }} className="table">
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar/>
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -297,7 +292,6 @@ export default function EnhancedTable() {
             size={dense ? 'small' : 'medium'}
           >
             <EnhancedTableHead
-              numSelected={selected.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
