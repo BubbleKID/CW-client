@@ -12,8 +12,8 @@ export default function Home() {
         const getProducts = async() => {
             try {
                 const response = await axios.get(`${BASE_URL}/api/findall`);
-                await setProducts(response.data);
-                await console.log(`GET: Here's the list of products`, response.data);
+                setProducts(response.data);
+                console.log(`GET: Here's the list of products`, response.data);
             } catch (errors) {
                 console.error(errors);
             }
@@ -24,6 +24,7 @@ export default function Home() {
 
     return(
         <div>
+            <h1>Products Management Solution</h1>
             <Header/>
             <Table products={products}/>
         </div>

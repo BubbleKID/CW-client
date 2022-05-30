@@ -125,7 +125,7 @@ interface TableProps {
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-  const { order, orderBy, rowCount, onRequestSort } =
+  const { order, orderBy, onRequestSort } =
     props;
   const createSortHandler =
     (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
@@ -209,7 +209,7 @@ export default function EnhancedTable(props: TableProps) {
   const [currentId, setCurrentId] = React.useState<string>('');
 
   const handleRequestSort = (
-    event: React.MouseEvent<unknown>,
+    _event: React.MouseEvent<unknown>,
     property: keyof Data,
   ) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -217,7 +217,7 @@ export default function EnhancedTable(props: TableProps) {
     setOrderBy(property);
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -236,7 +236,7 @@ export default function EnhancedTable(props: TableProps) {
   
   const navigate = useNavigate();
 
-  const handleDelete = (productId: String) => {
+  const handleDelete = (productId: string) => {
     const BASE_URL = process.env.BASE_URL;
   
     axios.post(`${BASE_URL}/api/delete`, {_id: productId})
@@ -253,7 +253,7 @@ export default function EnhancedTable(props: TableProps) {
     });
   };
 
-  const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+  const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }

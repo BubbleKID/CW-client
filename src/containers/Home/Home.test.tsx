@@ -12,11 +12,16 @@ const server = setupServer(
     rest.post(`${BASE_URL}/api/findall`, (req, res, ctx) => {
         return res(ctx.json(fakeUserResponse));
     }),
-)
+);
+
+beforeAll(() => server.listen())
+afterEach(() => {
+    server.resetHandlers();
+});
+
+afterAll(() => server.close())
 
 test('Home should be rendered', async() => {
-    const component = await render(
-        <MemoryRouter>
-            <Home/>
-        </MemoryRouter>);
+    render(<MemoryRouter><Home/></MemoryRouter>);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Products Management Solution');
 });
