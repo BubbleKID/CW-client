@@ -360,9 +360,9 @@ export default function EnhancedTable(props: TableProps) {
           {"Do you want to delete this record?"}
         </DialogTitle>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Disagree</Button>
+          <Button onClick={() => setOpenDialog(false)}>Return</Button>
           <Button onClick={() => handleDelete(currentId)} autoFocus>
-            Agree
+            Confirm
           </Button>
         </DialogActions>
       </Dialog>
