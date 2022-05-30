@@ -12,7 +12,9 @@
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.tsx",
-      "!src/index.tsx"
+      "!src/index.tsx",
+      "!src/setupTests.js",
+      "!server.js"
     ],
     "moduleNameMapper": {
       "\\.(css|scss|sass)$": "identity-obj-proxy",

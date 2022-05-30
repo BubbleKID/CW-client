@@ -10,9 +10,11 @@
 <a href="https://codecov.io/gh/BubbleKID/CW-client">
     <img src="https://codecov.io/gh/BubbleKID/CW-client/branch/main/graph/badge.svg?token=60YDH3NGO6"/>
 </a>
-    
 
- 
+<a href="https://codecov.io/gh/BubbleKID/CW-client">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=BubbleKID_CW-client&metric=alert_status"/>
+</a>
+
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
