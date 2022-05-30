@@ -23,5 +23,5 @@ afterAll(() => server.close())
 
 test('Home should be rendered', async() => {
     render(<MemoryRouter><Home/></MemoryRouter>);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Products Management Solution');
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Products Management Solution');
 });

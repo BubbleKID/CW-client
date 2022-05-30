@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import { Typography } from '@mui/material';
 import Table from '../../components/Table/Table';
 import Header from '../../components/Header/Header';
 import axios from 'axios';
@@ -24,8 +25,10 @@ export default function Home() {
 
     return(
         <div>
-            <h1>Products Management Solution</h1>
             <Header/>
+            <Typography variant="h3" component="h3" sx={{textAlign: 'center'}}>
+                Products Management Solution
+            </Typography>
             <Table products={products}/>
         </div>
     );
