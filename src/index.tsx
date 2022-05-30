@@ -5,8 +5,8 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import Home from './containers/Home';
-import Editor from './containers/Editor';
+import Home from './containers/Home/Home';
+import Editor from './containers/Editor/Editor';
 
 class MyComponent extends React.Component {
   render() {

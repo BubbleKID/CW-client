@@ -19,7 +19,7 @@
   <a href="https://github.com/BubbleKID/CW-client">
     <img src="logo.png" alt="Logo" width="80" height="80">
   </a>
-  <h3 align="center">Blizzard.com clone(client)</h3>
+  <h3 align="center">ChemistWarehouse Test(client)</h3>
 </div>
 
 ## Demo

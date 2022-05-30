@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import './Editor.sass';
-import Header from '../components/Header/Header';
+import Header from '../../components/Header/Header';
 import axios from 'axios';
 
 interface EditProps {
@@ -122,11 +122,7 @@ const Edit = (props: EditProps) => {
     });
   };
 
-  const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
+  const handleClose = () => {
     setOpenAlert(false);
   };
 
@@ -134,8 +130,7 @@ const Edit = (props: EditProps) => {
     <>
       <Header/>
       <div className="editor">
-        <div className="editor__container">
-          
+        <div className="editor__container">   
           <Box
             component="form"
             sx={{
