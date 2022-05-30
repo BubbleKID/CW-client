@@ -1,5 +1,6 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { default as NumberFormat } from 'react-number-format';
 import {
   Typography,
   FormControlLabel ,
@@ -9,51 +10,132 @@ import {
   MenuItem,
   FormControl,
   Switch,
-  Stack 
+  Stack,
+  InputLabel,
+  Snackbar
 } from '@mui/material';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import './Editor.sass';
 import Header from '../components/Header/Header';
+import axios from 'axios';
 
 interface EditProps {
   isEdit: boolean
 }
 
-const Edit = (props: EditProps) => {
-  const types = [
-    {
-      value: 'books',
-      label: 'Books'
-    },
-    {
-      value: 'electronics',
-      label: 'Electronics'
-    },
-    {
-      value: 'food',
-      label: 'Food'
-    },
-    {
-      value: 'furniture',
-      label: 'Furniture'
-    },
-    {
-      value: 'toys',
-      label: 'Toys'
-    },
-  ];
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
+}
 
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  type: string;
+  active: boolean;
+}
+
+const NumberFormatCustom = React.forwardRef<NumberFormat<React.Component>, CustomProps>(
+  function NumberFormatCustom(props, ref) {
+    const { onChange, ...other } = props;
+
+    return (
+      <NumberFormat
+        {...other}
+        getInputRef={ref}
+        onValueChange={(values) => {
+          onChange({
+            target: {
+              name: props.name,
+              value: values.value,
+            },
+          });
+        }}
+        thousandSeparator
+        allowNegative={false}
+        isNumericString
+        decimalScale={2}
+        prefix="$"
+      />
+    );
+  },
+);
+
+const Edit = (props: EditProps) => {
+  const BASE_URL = process.env.BASE_URL;
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as { product: Product };
+  const typeOptions = [
+    "Books",
+    'Electronics',
+    'Food',
+    'Furniture',
+    'Toys',
+  ];
+  const [productName, setProductName] = useState<string>(props.isEdit ? state.product.name : '');
+  const [productPrice, setProductPrice] = useState<string | number>(props.isEdit ? state.product.price : ''); 
+  const [productType, setProductType] = useState<string>(props.isEdit ? state.product.type : ''); 
+  const [productActive, setProductActive] = useState<boolean>(props.isEdit ? state.product.active : false);
+  const [openAlert, setOpenAlert] = useState<boolean>(false);
+  const [alertMessage, setalertMessage] = useState<string>('No message');
 
   const handleReturnHome = () => {
     navigate('/');
-  }
+  };
 
-return (
+  const handleCreate = () => {
+    axios.post(`${BASE_URL}/api/save`, {
+      name: productName,
+      price: productPrice,
+      type: productType,
+      active: productActive
+    })
+    .then((response) => {
+      console.log(response);
+      setOpenAlert(true);
+      setalertMessage(response.data);
+    }, (error) => {
+      console.log(error);
+      setOpenAlert(true);
+      setalertMessage(error)
+    });
+  };
+
+  const handleSave = () => {
+    axios.post(`${BASE_URL}/api/update`, {
+      _id: state.product._id,
+      name: productName,
+      price: productPrice,
+      type: productType,
+      active: productActive
+    })
+    .then((response) => {
+      console.log(response);
+      setOpenAlert(true);
+      setalertMessage(response.data);
+    }, (error) => {
+      console.log(error);
+      setOpenAlert(true);
+      setalertMessage(error)
+    });
+  };
+
+  const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenAlert(false);
+  };
+
+  return (
     <>
       <Header/>
       <div className="editor">
         <div className="editor__container">
-          <Typography variant="h5">{props.isEdit ? "Edit Product" : "New Product"}</Typography>
+          
           <Box
             component="form"
             sx={{
@@ -62,45 +144,63 @@ return (
             noValidate
             autoComplete="off"
             >
-            <form>
-              <FormControl fullWidth>
-                <TextField
-                  style={{ width: "200px", margin: "5px" }}
-                  type="text"
-                  label="Name"
-                  multiline
-                />
-              </FormControl>
-              <FormControl fullWidth>
-                <TextField
-                  style={{ width: "200px", margin: "5px" }}
-                  type="text"
-                  label="Price"
-                  variant="outlined"
-                />
-              </FormControl>
-              <FormControl fullWidth>
-                <TextField
-                  id="select name"
-                  select
-                  label="Types"
-                >
-                  {types.map((type) => (
-                    <MenuItem key={type.value} value={type.value}>
-                      {type.label}
-                    </MenuItem>
-                  ))}
-                </TextField>                
-              </FormControl>
-              <FormControlLabel control={<Switch defaultChecked />} label="Active" sx={{ml: 0, width: '100%'}}/>
-              <FormControl>
-                <Stack direction="row" spacing={2}>
-                  <Button variant="contained" color="success">{props.isEdit ? "Save Product" : "Create Product"}</Button>
-                  <Button variant="outlined" onClick={handleReturnHome}>Return</Button>
-                </Stack>
-              </FormControl>
-            </form>
+            <Typography variant="h5" sx={{ margin: "5px" }}>{props.isEdit ? "Edit Product" : "New Product"}</Typography>
+            <FormControl fullWidth>
+              <TextField
+                style={{ width: "300px", margin: "5px" }}
+                type="text"
+                label="Name"
+                value={productName}
+                onChange={event => setProductName(event.target.value)}
+                multiline
+                inputProps={{ maxLength: 100 }}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <TextField
+                style={{ width: "300px", margin: "5px" }}
+                label="Price"
+                variant="outlined"
+                value={productPrice}
+                onChange={event => setProductPrice(Number(event.target.value))}
+                InputProps={{
+                  inputComponent: NumberFormatCustom as any,
+                }}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="select-type-label" style={{ margin: "5px" }}>Types</InputLabel>
+              <Select
+                labelId="select-type-label"
+                style={{ width: "300px", margin: "5px" }}
+                id="select-type"
+                label="Types"
+                value={productType}
+                onChange={event => setProductType(event.target.value)}
+              >
+                {typeOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>                
+            </FormControl>
+            <FormControlLabel control={<Switch checked={productActive} onChange={event => setProductActive(event.target.checked)} />} label="Active" sx={{ml: 0, width: '100%'}}/>
+            <FormControl>
+              <Stack direction="row" spacing={2}  style={{ margin: "5px" }}>
+                {props.isEdit ? <Button variant="contained" onClick={handleSave}>Save Product</Button>
+                  : <Button variant="contained" onClick={handleCreate}>Create Product</Button>
+                }   
+                <Button variant="outlined" onClick={handleReturnHome}>Back To Home</Button>
+              </Stack>
+            </FormControl>
           </Box>
+          <Snackbar
+            open={openAlert}
+            autoHideDuration={6000}
+            onClose={handleClose}
+            message={alertMessage}
+          />
         </div>
       </div>
     </>

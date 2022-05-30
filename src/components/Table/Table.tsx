@@ -1,67 +1,45 @@
 import * as React from 'react';
-import { alpha } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Button from '@mui/material/Button';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import CreateIcon from '@mui/icons-material/Create';
-import { visuallyHidden } from '@mui/utils';
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Toolbar,
+  Paper,
+  IconButton,
+  TableSortLabel,
+  Tooltip,
+  Typography, 
+  FormControlLabel,
+  Button,
+  Box,
+  Switch,
+  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogActions
+} from '@mui/material';
 
+import {
+  Delete as DeleteIcon,
+  AddCircle as AddCircleIcon,
+  Create as CreateIcon
+  } from '@mui/icons-material';
+import { visuallyHidden } from '@mui/utils';
+import { useNavigate } from "react-router-dom";
 import './Table.sass';
+import axios from 'axios';
 
 interface Data {
+  _id: string;
   name: string;
   price: number;
   type: string;
   active: string;
 }
-
-function createData(
-  name: string,
-  price: number,
-  type: string,
-  active: string
-): Data {
-  return {
-    name,
-    price,
-    type,
-    active,
-  };
-}
-
-const rows = [
-  createData('Cupcake', 305, "Books", 'active'),
-  createData('Donut', 452, "Electronics", 'active'),
-  createData('Eclair', 262, "Electronics", 'active'),
-  createData('Frozen yoghurt', 159, "Furniture", 'active'),
-  createData('Gingerbread', 356, "Furniture", 'inactive'),
-  createData('Honeycomb', 408, "Books", 'active'),
-  createData('Ice cream sandwich', 237, "Books", 'inactive'),
-  createData('Jelly Bean', 375, "Toys", 'inactive'),
-  createData('KitKat', 518, "Toys", 'inactive'),
-  createData('Lollipop', 392, "Books", 'active'),
-  createData('Marshmallow', 318, "Food", 'active'),
-  createData('Nougat', 360, "Food", 'inactive'),
-  createData('Oreo', 437, "Food", 'active'),
-];
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -137,14 +115,17 @@ const headCells: readonly HeadCell[] = [
 
 interface EnhancedTableProps {
   onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
-  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
   order: Order;
   orderBy: string;
   rowCount: number;
 }
 
+interface TableProps {
+  products: Data[];
+}
+
 function EnhancedTableHead(props: EnhancedTableProps) {
-  const { onSelectAllClick, order, orderBy, rowCount, onRequestSort } =
+  const { order, orderBy, rowCount, onRequestSort } =
     props;
   const createSortHandler =
     (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
@@ -216,13 +197,16 @@ const EnhancedTableToolbar = () => {
   );
 };
 
-export default function EnhancedTable() {
+export default function EnhancedTable(props: TableProps) {
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<keyof Data>('name');
-  const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [openAlert, setOpenAlert] =  React.useState<boolean>(false);
+  const [alertMessage, setalertMessage] =  React.useState<string>('No message');
+  const [openDialog, setOpenDialog] = React.useState<boolean>(false);
+  const [currentId, setCurrentId] = React.useState<string>('');
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -231,35 +215,6 @@ export default function EnhancedTable() {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-  };
-
-  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.name);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected: readonly string[] = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
-      );
-    }
-
-    setSelected(newSelected);
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -275,11 +230,36 @@ export default function EnhancedTable() {
     setDense(event.target.checked);
   };
 
-  const isSelected = (name: string) => selected.indexOf(name) !== -1;
-
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - props.products.length) : 0;
+  
+  const navigate = useNavigate();
+
+  const handleDelete = (productId: String) => {
+    const BASE_URL = process.env.BASE_URL;
+  
+    axios.post(`${BASE_URL}/api/delete`, {_id: productId})
+    .then((response) => {
+      console.log(response);
+      setOpenAlert(true);
+      setalertMessage(response.data);
+      setOpenDialog(false);
+    }, (error) => {
+      console.log(error);
+      setOpenAlert(true);
+      setalertMessage(error);
+      setOpenDialog(false);
+    });
+  };
+
+  const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenAlert(false);
+  };
 
   return (
     <Box sx={{ width: '100%' }} className="table">
@@ -294,29 +274,23 @@ export default function EnhancedTable() {
             <EnhancedTableHead
               order={order}
               orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={props.products.length}
             />
             <TableBody>
               {/* if you don't need to support IE11, you can replace the `stableSort` call with:
               rows.slice().sort(getComparator(order, orderBy)) */}
-              {stableSort(rows, getComparator(order, orderBy))
+              {stableSort(props.products, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
-                  // const isItemSelected = true;
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
+                      key={row._id}
                       hover
-                      // onClick={(event) => handleClick(event, row.name)}
                       role="checkbox"
-                      aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
-                      selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
                         
@@ -330,18 +304,16 @@ export default function EnhancedTable() {
                       >
                         {row.name}
                       </TableCell>
-                      <TableCell align="left">{row.price}</TableCell>
+                      <TableCell align="left">{`$${row.price.toFixed(2)}`}</TableCell>
                       <TableCell align="left">{row.type}</TableCell>
-                      <TableCell align="left">{row.active}</TableCell>
+                      <TableCell align="left">{row.active ? "Active" : "Inactive"}</TableCell>
                       <TableCell align="left">
-                        <IconButton color="error" aria-label="delete">
+                        <IconButton color="error" aria-label="delete" onClick={() => {setOpenDialog(true);setCurrentId(row._id);}}>
                           <DeleteIcon  />
-                        </IconButton>
-                        <Link to="/edit">
-                          <IconButton color="primary" aria-label="edit">
-                            <CreateIcon  />
-                          </IconButton>
-                        </Link>
+                        </IconButton>                         
+                        <IconButton color="primary" aria-label="edit" onClick={() => navigate('/edit', { state: { product: row } })}>
+                          <CreateIcon  />
+                        </IconButton>                        
                       </TableCell>
                     </TableRow>
                   );
@@ -361,7 +333,7 @@ export default function EnhancedTable() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={rows.length}
+          count={props.products.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -372,6 +344,28 @@ export default function EnhancedTable() {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
+      <Snackbar
+        open={openAlert}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        message={alertMessage}
+      />
+      <Dialog
+        open={openDialog}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Do you want to delete this record?"}
+        </DialogTitle>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Disagree</Button>
+          <Button onClick={() => handleDelete(currentId)} autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
