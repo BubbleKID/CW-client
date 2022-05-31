@@ -14,7 +14,7 @@ import {
   InputLabel,
   Snackbar
 } from '@mui/material';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import './Editor.sass';
 import Header from '../../components/Header/Header';
 import axios from 'axios';
@@ -79,7 +79,7 @@ const Edit = (props: EditProps) => {
   const [productType, setProductType] = useState<string>(props.isEdit ? state.product.type : ''); 
   const [productActive, setProductActive] = useState<boolean>(props.isEdit ? state.product.active : false);
   const [openAlert, setOpenAlert] = useState<boolean>(false);
-  const [alertMessage, setalertMessage] = useState<string>('No message');
+  const [alertMessage, setAlertMessage] = useState<string>('No message');
 
   const handleReturnHome = () => {
     navigate('/');
@@ -95,31 +95,49 @@ const Edit = (props: EditProps) => {
     .then((response) => {
       console.log(response);
       setOpenAlert(true);
-      setalertMessage(response.data);
+      setAlertMessage(response.data);
     }, (error) => {
       console.log(error);
       setOpenAlert(true);
-      setalertMessage(error)
+      setAlertMessage(error)
     });
   };
 
+  const validataion = () => {
+    if(productName === '') {
+      setOpenAlert(true);
+      setAlertMessage("Product name can't be empty");
+      return false;
+    }
+    
+    if(productPrice === 0) {
+      setOpenAlert(true);
+      setAlertMessage("Product price can't be 0");
+      return false;
+    }
+
+    return true;
+  }
+
   const handleSave = () => {
-    axios.post(`${BASE_URL}/api/update`, {
-      _id: state.product._id,
-      name: productName,
-      price: productPrice,
-      type: productType,
-      active: productActive
-    })
-    .then((response) => {
-      console.log(response);
-      setOpenAlert(true);
-      setalertMessage(response.data);
-    }, (error) => {
-      console.log(error);
-      setOpenAlert(true);
-      setalertMessage(error)
-    });
+    if(validataion()) {
+      axios.post(`${BASE_URL}/api/update`, {
+        _id: state.product._id,
+        name: productName,
+        price: productPrice,
+        type: productType,
+        active: productActive
+      })
+      .then((response) => {
+        console.log(response);
+        setOpenAlert(true);
+        setAlertMessage(response.data);
+      }, (error) => {
+        console.log(error);
+        setOpenAlert(true);
+        setAlertMessage(error)
+      });
+    }    
   };
 
   const handleClose = () => {
